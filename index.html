@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayak Konforu Zamanlı Anket - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 5px;
+        }
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 5px;
+        }
+        .survey-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .info-section {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+        }
+        .info-form {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .measurement-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .body-part {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .body-part h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .sensation-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .sensation-group label {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+        .sensation-group label:hover {
+            background-color: #ecf0f1;
+        }
+        .sensation-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        .start-btn, .next-btn, .finish-btn, .info-btn, .continue-btn, .test-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        .start-btn:hover, .next-btn:hover, .finish-btn:hover, .info-btn:hover, .continue-btn:hover, .test-btn:hover {
+            background: #219a52;
+        }
+        .info-btn {
+            background: #3498db;
+        }
+        .info-btn:hover {
+            background: #2980b9;
+        }
+        .continue-btn {
+            background: #27ae60;
+        }
+        .continue-btn:hover {
+            background: #219a52;
+        }
+        .test-btn {
+            background: #e74c3c;
+        }
+        .test-btn:hover {
+            background: #c0392b;
+        }
+        .next-btn:disabled, .finish-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .next-btn:disabled:hover, .finish-btn:disabled:hover {
+            background: #95a5a6;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .visible {
+            display: block !important;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 5px;
+            border: 2px solid #27ae60;
+        }
+        .participant-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .participant-info h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .participant-info p {
+            margin: 5px 0;
+            color: #495057;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .measurement-alert {
+            background: #f39c12 !important;
+            color: white !important;
+            padding: 20px !important;
+            border-radius: 10px !important;
+            text-align: center !important;
+            font-weight: bold !important;
+            font-size: 20px !important;
+            margin: 20px 0 !important;
+            border: 3px solid #e67e22 !important;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
+            animation: alertPulse 1s infinite !important;
+            z-index: 1000 !important;
+            position: relative !important;
+        }
+        @keyframes alertPulse {
+            0% { 
+                opacity: 1; 
+                transform: scale(1); 
+                background: #f39c12;
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.05); 
+                background: #e67e22;
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1); 
+                background: #f39c12;
+            }
+        }
+        .debug-info {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            .sensation-group {
+                flex-direction: column;
+            }
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ayak Konforu Zamanlı Anket - Debug Versiyonu</h1>
+            <p>Ayak konforunu etkileyen nem ve sıcaklık parametrelerinin analizi</p>
+        </div>
+
+        <!-- Debug Test Butonu -->
+        <div id="debugSection">
+            <button class="test-btn" onclick="testAlert()">🔔 Uyarı Mesajını Test Et</button>
+            <div id="debugInfo" class="debug-info">Debug bilgileri burada görünecek...</div>
+        </div>
+
+        <!-- Bilgilendirme Ekranı (İlk Ekran) -->
+        <div id="infoScreen">
+            <div class="survey-section info-section">
+                <h3>Anket Hakkında Bilgilendirme</h3>
+                <p>Bu çalışma <strong>40 dakika</strong> sürecektir. Belirli dakikalarda <strong>(0, 5, 10, 15, 20, 25, 30, 35, 40)</strong> ayağınızın farklı bölgelerindeki sıcaklık ve nem hissiyatınızı değerlendirmeniz istenecektir.</p>
+
+                <h4>Ayak Bölgeleri:</h4>
+                <ul>
+                    <li><strong>Üst (↑)</strong> - Ayağın üst kısmı</li>
+                    <li><strong>Taban (↓)</strong> - Ayağın alt kısmı</li>
+                    <li><strong>Dış (→)</strong> - Ayağın dış kenarı</li>
+                    <li><strong>İç (←)</strong> - Ayağın iç kenarı</li>
+                    <li><strong>Arka</strong> - Topuk bölgesi</li>
+                </ul>
+
+                <h4>Hissiyat Dereceleri:</h4>
+                <p><strong>Sıcaklık ve Nem için:</strong> -3 (Çok Soğuk/Çok Kuru) ile +3 (Çok Sıcak/Çok Islak) arasında değerlendirme yapacaksınız.</p>
+
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <h4 style="color: #856404; margin-top: 0;">⚠️ Önemli Uyarılar:</h4>
+                    <ul style="color: #856404;">
+                        <li>Önce katılımcı bilgilerinizi dolduracaksınız</li>
+                        <li>Sonra "Anketi Başlat" butonuna bastığınızda zamanlayıcı çalışmaya başlayacak</li>
+                        <li>Anket otomatik olarak ilerleyecek ve belirtilen dakikalarda ölçüm ekranları açılacak</li>
+                        <li>Her ölçümde tüm soruları cevaplamanız gerekir</li>
+                        <li>Anket başladıktan sonra duraklatılamaz</li>
+                        <li><strong>Yeni ölçüm zamanı geldiğinde 10 saniye boyunca uyarı mesajı görünecek</strong></li>
+                    </ul>
+                </div>
+
+                <button class="continue-btn" onclick="showParticipantForm()">Bilgilendirmeyi Okudum, Devam Et</button>
+            </div>
+        </div>
+
+        <!-- Katılımcı Bilgileri Ekranı -->
+        <div id="participantScreen" class="hidden">
+            <div class="survey-section info-form">
+                <h3>Katılımcı Bilgileri</h3>
+                <p>Lütfen aşağıdaki bilgileri doldurun. Bu bilgiler anket verilerinizle birlikte kaydedilecektir.</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="anketNo">Anket No:</label>
+                        <input type="text" id="anketNo" required>
+                        <div class="error-message" id="anketNoError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="kisiKodu">Kişi Kodu:</label>
+                        <input type="text" id="kisiKodu" required>
+                        <div class="error-message" id="kisiKoduError"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ayakkabiKodu">Ayakkabı Kodu:</label>
+                        <input type="text" id="ayakkabiKodu" required>
+                        <div class="error-message" id="ayakkabiKoduError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="corapKodu">Çorap Kodu:</label>
+                        <input type="text" id="corapKodu" required>
+                        <div class="error-message" id="corapKoduError"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="denemeNo">Deneme No:</label>
+                    <input type="text" id="denemeNo" required>
+                    <div class="error-message" id="denemeNoError"></div>
+                </div>
+
+                <button class="info-btn" onclick="validateAndProceed()">Bilgileri Kaydet ve Devam Et</button>
+            </div>
+        </div>
+
+        <!-- Başlangıç Ekranı -->
+        <div id="startScreen" class="hidden">
+            <div class="participant-info">
+                <h4>Katılımcı Bilgileri:</h4>
+                <div id="participantDetails"></div>
+            </div>
+
+            <div class="survey-section">
+                <h3>Anket Başlatmaya Hazır</h3>
+                <p>Katılımcı bilgileriniz kaydedildi. Şimdi anketi başlatabilirsiniz.</p>
+                <p><strong>Hatırlatma:</strong> "Anketi Başlat" butonuna bastığınızda 40 dakikalık zamanlayıcı çalışmaya başlayacak ve anket otomatik olarak ilerleyecektir.</p>
+                <p><strong>Hazır olduğunuzda</strong> aşağıdaki butona basın:</p>
+            </div>
+            <button class="start-btn" onclick="startSurvey()">Anketi Başlat</button>
+        </div>
+
+        <!-- Anket Ekranı -->
+        <div id="surveyScreen" class="hidden">
+            <div class="participant-info">
+                <div id="surveyParticipantDetails"></div>
+            </div>
+
+            <div class="timer" id="timer">Süre: 0 dakika 0 saniye</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <!-- UYARI MESAJI - Bu çok önemli! -->
+            <div id="measurementAlert" class="measurement-alert hidden">
+                🔔 ÖLÇÜM ZAMANI GELDİ! Lütfen aşağıdaki soruları cevaplayın.
+            </div>
+
+            <div id="currentMeasurement"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextMeasurement()" disabled>Sonraki Ölçüm</button>
+            <button class="finish-btn hidden" id="finishBtn" onclick="finishSurvey()" disabled>Anketi Bitir</button>
+        </div>
+
+        <!-- Sonuçlar Ekranı -->
+        <div id="resultsScreen" class="hidden">
+            <div class="results">
+                <h2>Anket Tamamlandı!</h2>
+                <p>Tüm ölçümleriniz kaydedildi. Sonuçları aşağıdan indirebilirsiniz.</p>
+                <button class="next-btn" onclick="downloadResults()">Sonuçları İndir (JSON)</button>
+                <button class="next-btn" onclick="downloadCSV()">Sonuçları İndir (CSV)</button>
+            </div>
+            <div id="resultsDisplay"></div>
+        </div>
+    </div>
+
+    <script>
+        const measurementTimes = [0, 5, 10, 15, 20, 25, 30, 35, 40];
+        const bodyParts = ['Üst (↑)', 'Taban (↓)', 'Dış (→)', 'İç (←)', 'Arka'];
+        const temperatureOptions = [
+            {value: 3, label: '+3 Çok Sıcak'},
+            {value: 2, label: '+2 Sıcak'},
+            {value: 1, label: '+1 Ilık'},
+            {value: 0, label: '0 Normal'},
+            {value: -1, label: '-1 Hafif Soğuk'},
+            {value: -2, label: '-2 Soğuk'},
+            {value: -3, label: '-3 Çok Soğuk'}
+        ];
+        const humidityOptions = [
+            {value: 3, label: '+3 Çok Islak'},
+            {value: 2, label: '+2 Islak'},
+            {value: 1, label: '+1 Hafif Islak'},
+            {value: 0, label: '0 Normal'},
+            {value: -1, label: '-1 Hafif Kuru'},
+            {value: -2, label: '-2 Kuru'},
+            {value: -3, label: '-3 Çok Kuru'}
+        ];
+
+        let startTime;
+        let currentStep = 0;
+        let interval;
+        let surveyData = {};
+        let participantInfo = {};
+        let measurementTimeReached = false;
+
+        // Debug fonksiyonu
+        function debugLog(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `<br>[${timestamp}] ${message}`;
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        // Test fonksiyonu
+        function testAlert() {
+            debugLog('Test butonu tıklandı');
+            showMeasurementAlert();
+        }
+
+        function showParticipantForm() {
+            debugLog('Katılımcı formu gösteriliyor');
+            document.getElementById('infoScreen').classList.add('hidden');
+            document.getElementById('participantScreen').classList.remove('hidden');
+        }
+
+        function validateAndProceed() {
+            debugLog('Form validasyonu başlıyor');
+            // Form validasyonu
+            const fields = ['anketNo', 'kisiKodu', 'ayakkabiKodu', 'corapKodu', 'denemeNo'];
+            let isValid = true;
+
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                const errorDiv = document.getElementById(field + 'Error');
+
+                if (!input.value.trim()) {
+                    errorDiv.textContent = 'Bu alan zorunludur.';
+                    isValid = false;
+                } else {
+                    errorDiv.textContent = '';
+                }
+            });
+
+            if (!isValid) {
+                debugLog('Form validasyonu başarısız');
+                return;
+            }
+
+            debugLog('Form validasyonu başarılı');
+
+            // Katılımcı bilgilerini kaydet
+            participantInfo = {
+                anketNo: document.getElementById('anketNo').value.trim(),
+                kisiKodu: document.getElementById('kisiKodu').value.trim(),
+                ayakkabiKodu: document.getElementById('ayakkabiKodu').value.trim(),
+                corapKodu: document.getElementById('corapKodu').value.trim(),
+                denemeNo: document.getElementById('denemeNo').value.trim(),
+                kayitTarihi: new Date().toLocaleString('tr-TR')
+            };
+
+            // Katılımcı bilgilerini göster
+            const detailsHtml = `
+                <p><strong>Anket No:</strong> ${participantInfo.anketNo}</p>
+                <p><strong>Kişi Kodu:</strong> ${participantInfo.kisiKodu}</p>
+                <p><strong>Ayakkabı Kodu:</strong> ${participantInfo.ayakkabiKodu}</p>
+                <p><strong>Çorap Kodu:</strong> ${participantInfo.corapKodu}</p>
+                <p><strong>Deneme No:</strong> ${participantInfo.denemeNo}</p>
+                <p><strong>Kayıt Tarihi:</strong> ${participantInfo.kayitTarihi}</p>
+            `;
+
+            document.getElementById('participantDetails').innerHTML = detailsHtml;
+
+            // Ekranları değiştir
+            document.getElementById('participantScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            debugLog('Başlangıç ekranına geçildi');
+        }
+
+        function startSurvey() {
+            debugLog('Anket başlatılıyor');
+
+            // Anket başlangıç zamanını kaydet
+            participantInfo.anketBaslangicZamani = new Date().toLocaleString('tr-TR');
+
+            // Katılımcı bilgilerini anket ekranında da göster
+            const surveyDetailsHtml = `
+                <h4>Katılımcı: ${participantInfo.kisiKodu} | Anket: ${participantInfo.anketNo} | Başlangıç: ${participantInfo.anketBaslangicZamani}</h4>
+            `;
+            document.getElementById('surveyParticipantDetails').innerHTML = surveyDetailsHtml;
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('surveyScreen').classList.remove('hidden');
+
+            startTime = Date.now();
+            currentStep = 0;
+            surveyData = {};
+            measurementTimeReached = true; // İlk ölçüm için zaman geldi
+
+            debugLog('İlk ölçüm için uyarı gösteriliyor');
+            // İlk ölçüm için de uyarı göster
+            showMeasurementAlert();
+
+            showMeasurement(0);
+            interval = setInterval(updateTimer, 1000);
+            debugLog('Timer başlatıldı');
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+
+            document.getElementById('timer').textContent = 
+                `Süre: ${minutes} dakika ${seconds} saniye`;
+
+            // Otomatik geçiş kontrolü
+            const elapsedMinutes = Math.floor(elapsed / 60);
+            if (currentStep < measurementTimes.length - 1 && 
+                elapsedMinutes >= measurementTimes[currentStep + 1]) {
+
+                debugLog(`${measurementTimes[currentStep + 1]}. dakika geldi - uyarı gösteriliyor`);
+                // Ölçüm zamanı uyarısı göster
+                showMeasurementAlert();
+
+                saveMeasurement();
+                currentStep++;
+                measurementTimeReached = true;
+                showMeasurement(currentStep);
+            }
+
+            // Progress bar güncelleme
+            const progress = (elapsedMinutes / 40) * 100;
+            document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
+
+            // Anket bitişi kontrolü
+            if (elapsedMinutes >= 40) {
+                clearInterval(interval);
+                saveMeasurement();
+                showResults();
+                debugLog('Anket tamamlandı');
+            }
+
+            // Buton durumunu kontrol et
+            checkButtonStatus();
+        }
+
+        function showMeasurementAlert() {
+            debugLog('showMeasurementAlert fonksiyonu çağrıldı');
+
+            const alertDiv = document.getElementById('measurementAlert');
+            if (!alertDiv) {
+                debugLog('HATA: measurementAlert elementi bulunamadı!');
+                return;
+            }
+
+            debugLog('Alert elementi bulundu, gösteriliyor');
+
+            // Önce gizli sınıfını kaldır
+            alertDiv.classList.remove('hidden');
+
+            // Görünür yap
+            alertDiv.style.display = 'block';
+            alertDiv.style.visibility = 'visible';
+
+            debugLog('Alert gösterildi, 10 saniye sonra gizlenecek');
+
+            // 10 saniye sonra uyarıyı gizle
+            setTimeout(() => {
+                alertDiv.classList.add('hidden');
+                alertDiv.style.display = 'none';
+                debugLog('Alert gizlendi');
+            }, 10000);
+        }
+
+        function checkButtonStatus() {
+            const minute = measurementTimes[currentStep];
+            let allAnswered = true;
+
+            // Tüm sorular cevaplanmış mı kontrol et
+            bodyParts.forEach(part => {
+                const tempRadio = document.querySelector(`input[name="temp_${part}_${minute}"]:checked`);
+                const humidRadio = document.querySelector(`input[name="humid_${part}_${minute}"]:checked`);
+
+                if (!tempRadio || !humidRadio) {
+                    allAnswered = false;
+                }
+            });
+
+            // Butonları aktif/pasif yap
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+
+            if (measurementTimeReached && allAnswered) {
+                nextBtn.disabled = false;
+                finishBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true;
+                finishBtn.disabled = true;
+            }
+        }
+
+        function showMeasurement(step) {
+            debugLog(`Ölçüm ${step} gösteriliyor`);
+            const measurementDiv = document.getElementById('currentMeasurement');
+            const minute = measurementTimes[step];
+            measurementTimeReached = (step === 0); // İlk ölçüm için true, diğerleri için false başlar
+
+            let html = `
+                <div class="survey-section">
+                    <div class="measurement-title">Ölçüm - ${minute}. Dakika</div>
+            `;
+
+            bodyParts.forEach(part => {
+                html += `
+                    <div class="body-part">
+                        <h4>${part}</h4>
+                        <div>
+                            <strong>Sıcaklık Hissiyatı:</strong>
+                            <div class="sensation-group">
+                `;
+
+                temperatureOptions.forEach(option => {
+                    html += `
+                        <label>
+                            <input type="radio" name="temp_${part}_${minute}" value="${option.value}" onchange="checkButtonStatus()">
+                            ${option.label}
+                        </label>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Nem Hissiyatı:</strong>
+                            <div class="sensation-group">
+                `;
+
+                humidityOptions.forEach(option => {
+                    html += `
+                        <label>
+                            <input type="radio" name="humid_${part}_${minute}" value="${option.value}" onchange="checkButtonStatus()">
+                            ${option.label}
+                        </label>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            measurementDiv.innerHTML = html;
+
+            // Buton kontrolü
+            if (step === measurementTimes.length - 1) {
+                document.getElementById('finishBtn').classList.remove('hidden');
+                document.getElementById('nextBtn').classList.add('hidden');
+            } else {
+                document.getElementById('nextBtn').classList.remove('hidden');
+                document.getElementById('finishBtn').classList.add('hidden');
+            }
+
+            // İlk kontrol
+            checkButtonStatus();
+        }
+
+        function saveMeasurement() {
+            const minute = measurementTimes[currentStep];
+            surveyData[`minute_${minute}`] = {};
+
+            bodyParts.forEach(part => {
+                const tempRadio = document.querySelector(`input[name="temp_${part}_${minute}"]:checked`);
+                const humidRadio = document.querySelector(`input[name="humid_${part}_${minute}"]:checked`);
+
+                surveyData[`minute_${minute}`][part] = {
+                    temperature: tempRadio ? parseInt(tempRadio.value) : null,
+                    humidity: humidRadio ? parseInt(humidRadio.value) : null
+                };
+            });
+            debugLog(`Ölçüm ${minute} kaydedildi`);
+        }
+
+        function nextMeasurement() {
+            debugLog('Sonraki ölçüme geçiliyor');
+            saveMeasurement();
+            currentStep++;
+            measurementTimeReached = false; // Yeni ölçüm için zaman henüz gelmedi
+            if (currentStep < measurementTimes.length) {
+                showMeasurement(currentStep);
+            }
+        }
+
+        function finishSurvey() {
+            debugLog('Anket bitiriliyor');
+            saveMeasurement();
+            clearInterval(interval);
+
+            // Anket bitiş zamanını kaydet
+            participantInfo.anketBitisZamani = new Date().toLocaleString('tr-TR');
+
+            showResults();
+        }
+
+        function showResults() {
+            document.getElementById('surveyScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            // Sonuçları göster
+            let resultsHtml = '<h3>Katılımcı Bilgileri:</h3>';
+            resultsHtml += `<p><strong>Anket No:</strong> ${participantInfo.anketNo}</p>`;
+            resultsHtml += `<p><strong>Kişi Kodu:</strong> ${participantInfo.kisiKodu}</p>`;
+            resultsHtml += `<p><strong>Ayakkabı Kodu:</strong> ${participantInfo.ayakkabiKodu}</p>`;
+            resultsHtml += `<p><strong>Çorap Kodu:</strong> ${participantInfo.corapKodu}</p>`;
+            resultsHtml += `<p><strong>Deneme No:</strong> ${participantInfo.denemeNo}</p>`;
+            resultsHtml += `<p><strong>Başlangıç:</strong> ${participantInfo.anketBaslangicZamani}</p>`;
+            resultsHtml += `<p><strong>Bitiş:</strong> ${participantInfo.anketBitisZamani}</p>`;
+
+            resultsHtml += '<h3>Ölçüm Sonuçları:</h3>';
+            Object.keys(surveyData).forEach(minute => {
+                resultsHtml += `<h4>${minute.replace('minute_', '')}. Dakika:</h4><ul>`;
+                Object.keys(surveyData[minute]).forEach(part => {
+                    const data = surveyData[minute][part];
+                    resultsHtml += `<li><strong>${part}:</strong> Sıcaklık: ${data.temperature}, Nem: ${data.humidity}</li>`;
+                });
+                resultsHtml += '</ul>';
+            });
+
+            document.getElementById('resultsDisplay').innerHTML = resultsHtml;
+        }
+
+        function downloadResults() {
+            const fullData = {
+                participantInfo: participantInfo,
+                surveyData: surveyData
+            };
+
+            const dataStr = JSON.stringify(fullData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ayak_konforu_anket_${participantInfo.kisiKodu}_${new Date().toISOString().slice(0,10)}.json`;
+            link.click();
+        }
+
+        function downloadCSV() {
+            let csv = 'AnketNo,KisiKodu,AyakkabiKodu,CorapKodu,DenemeNo,BaslangicZamani,BitisZamani,Dakika,Bolge,Sicaklik,Nem\n';
+
+            Object.keys(surveyData).forEach(minute => {
+                const minuteNum = minute.replace('minute_', '');
+                Object.keys(surveyData[minute]).forEach(part => {
+                    const data = surveyData[minute][part];
+                    csv += `${participantInfo.anketNo},${participantInfo.kisiKodu},${participantInfo.ayakkabiKodu},${participantInfo.corapKodu},${participantInfo.denemeNo},${participantInfo.anketBaslangicZamani},${participantInfo.anketBitisZamani},${minuteNum},${part},${data.temperature},${data.humidity}\n`;
+                });
+            });
+
+            const dataBlob = new Blob([csv], {type: 'text/csv'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ayak_konforu_anket_${participantInfo.kisiKodu}_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        // Sayfa yüklendiğinde debug bilgisi
+        window.onload = function() {
+            debugLog('Sayfa yüklendi');
+            const alertDiv = document.getElementById('measurementAlert');
+            if (alertDiv) {
+                debugLog('measurementAlert elementi bulundu');
+            } else {
+                debugLog('HATA: measurementAlert elementi bulunamadı!');
+            }
+        };
+    </script>
+</body>
+</html>
